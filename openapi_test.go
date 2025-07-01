@@ -170,6 +170,56 @@ func TestSpecGeneration(t *testing.T) {
 	}
 }
 
+func TestMultipleRequestMIMETypes(t *testing.T) {
+	generator := NewGenerator(DefaultConfig())
+
+	type TestRequest struct {
+		Data string `json:"data" xml:"data"`
+	}
+
+	// Add an endpoint with multiple request content types
+	builder := NewEndpointBuilder().
+		Summary("Test endpoint with multiple MIME types").
+		RequestBody("Request body", true, []string{"application/json", "application/xml"}, reflect.TypeOf(TestRequest{}))
+
+	err := generator.AddEndpointWithBuilder("POST", "/test", builder)
+	if err != nil {
+		t.Fatalf("error in OpenApi_Test, adding endpoint: %v", err)
+	}
+
+	// Generate spec
+	spec, err := generator.GenerateSpec()
+	if err != nil {
+		t.Fatalf("Failed to generate spec: %v", err)
+	}
+
+	pathItem, exists := spec.Paths["/test"]
+	if !exists {
+		t.Fatal("Path '/test' not found in spec")
+	}
+
+	if pathItem.Post == nil {
+		t.Fatal("POST operation not found")
+	}
+
+	requestBody := pathItem.Post.RequestBody
+	if requestBody == nil {
+		t.Fatal("Request body not found")
+	}
+
+	if len(requestBody.Content) != 2 {
+		t.Errorf("Expected 2 content types, got %d", len(requestBody.Content))
+	}
+
+	if _, exists := requestBody.Content["application/json"]; !exists {
+		t.Error("application/json content type not found")
+	}
+
+	if _, exists := requestBody.Content["application/xml"]; !exists {
+		t.Error("application/xml content type not found")
+	}
+}
+
 func TestQuickStart(t *testing.T) {
 	generator := QuickStart("Quick API", "Quick test", "1.0.0")
 	if generator == nil {

@@ -52,12 +52,12 @@ type ParameterInfo struct {
 
 // RequestBodyInfo contains information about request body
 type RequestBodyInfo struct {
-	Description string
-	Required    bool
-	ContentType string
-	Type        reflect.Type
-	Example     any
-	Schema      *Schema
+	Description  string
+	Required     bool
+	ContentTypes []string
+	Type         reflect.Type
+	Example      any
+	Schema       *Schema
 }
 
 // ResponseInfo contains information about a response
@@ -170,12 +170,12 @@ func (eb *EndpointBuilder) HeaderParam(name, description string, required bool, 
 }
 
 // RequestBody sets the request body information
-func (eb *EndpointBuilder) RequestBody(description string, required bool, contentType string, t reflect.Type) *EndpointBuilder {
+func (eb *EndpointBuilder) RequestBody(description string, required bool, contentTypes []string, t reflect.Type) *EndpointBuilder {
 	eb.options.RequestBody = &RequestBodyInfo{
-		Description: description,
-		Required:    required,
-		ContentType: contentType,
-		Type:        t,
+		Description:  description,
+		Required:     required,
+		ContentTypes: contentTypes,
+		Type:         t,
 	}
 	return eb
 }
@@ -290,9 +290,9 @@ func (eb *EndpointBuilder) convertParameter(param ParameterInfo, in string) Para
 }
 
 func (eb *EndpointBuilder) convertRequestBody(reqBody RequestBodyInfo) *RequestBody {
-	contentType := reqBody.ContentType
-	if contentType == "" {
-		contentType = "application/json"
+	contentTypes := reqBody.ContentTypes
+	if len(contentTypes) == 0 {
+		contentTypes = []string{"application/json"}
 	}
 
 	var schema *Schema
@@ -311,7 +311,9 @@ func (eb *EndpointBuilder) convertRequestBody(reqBody RequestBodyInfo) *RequestB
 		if reqBody.Example != nil {
 			mediaType.Example = reqBody.Example
 		}
-		content[contentType] = mediaType
+		for _, contentType := range contentTypes {
+			content[contentType] = mediaType
+		}
 	}
 
 	return &RequestBody{
