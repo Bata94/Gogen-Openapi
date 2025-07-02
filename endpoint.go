@@ -62,12 +62,12 @@ type RequestBodyInfo struct {
 
 // ResponseInfo contains information about a response
 type ResponseInfo struct {
-	Description string
-	ContentType string
-	Type        reflect.Type
-	Example     any
-	Schema      *Schema
-	Headers     map[string]HeaderInfo
+	Description  string
+	ContentTypes []string
+	Type         reflect.Type
+	Example      any
+	Schema       *Schema
+	Headers      map[string]HeaderInfo
 }
 
 // HeaderInfo contains information about a response header
@@ -181,12 +181,12 @@ func (eb *EndpointBuilder) RequestBody(description string, required bool, conten
 }
 
 // Response adds a response definition
-func (eb *EndpointBuilder) Response(statusCode int, description, contentType string, t reflect.Type) *EndpointBuilder {
+func (eb *EndpointBuilder) Response(statusCode int, description string, contentTypes []string, t reflect.Type) *EndpointBuilder {
 	eb.options.Responses[statusCode] = ResponseInfo{
-		Description: description,
-		ContentType: contentType,
-		Type:        t,
-		Headers:     make(map[string]HeaderInfo),
+		Description:  description,
+		ContentTypes: contentTypes,
+		Type:         t,
+		Headers:      make(map[string]HeaderInfo),
 	}
 	return eb
 }
@@ -348,9 +348,9 @@ func (eb *EndpointBuilder) convertResponse(resp ResponseInfo) Response {
 
 	// Add content
 	if resp.Type != nil || resp.Schema != nil {
-		contentType := resp.ContentType
-		if contentType == "" {
-			contentType = "application/json"
+		contentTypes := resp.ContentTypes
+		if len(contentTypes) == 0 {
+			contentTypes = []string{"application/json"}
 		}
 
 		var schema *Schema
@@ -368,8 +368,9 @@ func (eb *EndpointBuilder) convertResponse(resp ResponseInfo) Response {
 			mediaType.Example = resp.Example
 		}
 
-		response.Content = map[string]MediaType{
-			contentType: mediaType,
+		response.Content = make(map[string]MediaType)
+		for _, contentType := range contentTypes {
+			response.Content[contentType] = mediaType
 		}
 	}
 
@@ -382,28 +383,28 @@ func (eb *EndpointBuilder) convertResponse(resp ResponseInfo) Response {
 func StandardResponses() map[int]ResponseInfo {
 	return map[int]ResponseInfo{
 		200: {
-			Description: "Successful response",
-			ContentType: "application/json",
+			Description:  "Successful response",
+			ContentTypes: []string{"application/json"},
 		},
 		400: {
-			Description: "Bad request",
-			ContentType: "application/json",
+			Description:  "Bad request",
+			ContentTypes: []string{"application/json"},
 		},
 		401: {
-			Description: "Unauthorized",
-			ContentType: "application/json",
+			Description:  "Unauthorized",
+			ContentTypes: []string{"application/json"},
 		},
 		403: {
-			Description: "Forbidden",
-			ContentType: "application/json",
+			Description:  "Forbidden",
+			ContentTypes: []string{"application/json"},
 		},
 		404: {
-			Description: "Not found",
-			ContentType: "application/json",
+			Description:  "Not found",
+			ContentTypes: []string{"application/json"},
 		},
 		500: {
-			Description: "Internal server error",
-			ContentType: "application/json",
+			Description:  "Internal server error",
+			ContentTypes: []string{"application/json"},
 		},
 	}
 }

@@ -40,7 +40,7 @@ func TestEndpointBuilder(t *testing.T) {
 	builder.Summary("Test endpoint").
 		Description("Test description").
 		Tags("test").
-		Response(200, "Success", "application/json", nil)
+		Response(200, "Success", []string{"application/json"}, nil)
 
 	options := builder.Build()
 	if options.Summary != "Test endpoint" {
@@ -100,7 +100,7 @@ func TestAddEndpoint(t *testing.T) {
 
 	builder := NewEndpointBuilder().
 		Summary("Test GET endpoint").
-		Response(200, "Success", "application/json", nil)
+		Response(200, "Success", []string{"application/json"}, nil)
 
 	err := generator.AddEndpointWithBuilder("GET", "/test", builder)
 	if err != nil {
@@ -139,7 +139,7 @@ func TestSpecGeneration(t *testing.T) {
 	// Add a simple endpoint
 	builder := NewEndpointBuilder().
 		Summary("Test endpoint").
-		Response(200, "Success", "application/json", nil)
+		Response(200, "Success", []string{"application/json"}, nil)
 
 	err := generator.AddEndpointWithBuilder("GET", "/test", builder)
 	if err != nil {
@@ -371,7 +371,7 @@ func BenchmarkSpecGeneration(b *testing.B) {
 	for i := range 100 {
 		builder := NewEndpointBuilder().
 			Summary("Test endpoint").
-			Response(200, "Success", "application/json", nil)
+			Response(200, "Success", []string{"application/json"}, nil)
 		err := generator.AddEndpointWithBuilder("GET", "/test"+string(rune(i)), builder)
 		if err != nil {
 			b.Fatal(err)

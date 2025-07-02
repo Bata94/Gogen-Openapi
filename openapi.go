@@ -84,7 +84,7 @@ func QuickStart(title, description, version string) *Generator {
 func SimpleEndpoint(method, path, summary string) *EndpointBuilder {
 	return NewEndpointBuilder().
 		Summary(summary).
-		Response(200, "Successful response", "application/json", nil)
+		Response(200, "Successful response", []string{"application/json"}, nil)
 }
 
 // RESTEndpoint creates a REST endpoint with standard responses
@@ -96,24 +96,24 @@ func RESTEndpoint(method, path, summary string, resourceType reflect.Type) *Endp
 	// Add standard responses based on method
 	switch method {
 	case "GET":
-		builder.Response(200, "Successful response", "application/json", resourceType).
-			Response(404, "Resource not found", "application/json", reflect.TypeOf(ErrorResponse{}))
+		builder.Response(200, "Successful response", []string{"application/json"}, resourceType).
+			Response(404, "Resource not found", []string{"application/json"}, reflect.TypeOf(ErrorResponse{}))
 	case "POST":
 		builder.RequestType(resourceType).
-			Response(201, "Resource created", "application/json", resourceType).
-			Response(400, "Invalid input", "application/json", reflect.TypeOf(ErrorResponse{}))
+			Response(201, "Resource created", []string{"application/json"}, resourceType).
+			Response(400, "Invalid input", []string{"application/json"}, reflect.TypeOf(ErrorResponse{}))
 	case "PUT":
 		builder.RequestType(resourceType).
-			Response(200, "Resource updated", "application/json", resourceType).
-			Response(404, "Resource not found", "application/json", reflect.TypeOf(ErrorResponse{}))
+			Response(200, "Resource updated", []string{"application/json"}, resourceType).
+			Response(404, "Resource not found", []string{"application/json"}, reflect.TypeOf(ErrorResponse{}))
 	case "DELETE":
-		builder.Response(204, "Resource deleted", "", nil).
-			Response(404, "Resource not found", "application/json", reflect.TypeOf(ErrorResponse{}))
+		builder.Response(204, "Resource deleted", []string{}, nil).
+			Response(404, "Resource not found", []string{"application/json"}, reflect.TypeOf(ErrorResponse{}))
 	}
 
 	// Add common error responses
-	builder.Response(401, "Unauthorized", "application/json", reflect.TypeOf(ErrorResponse{})).
-		Response(500, "Internal server error", "application/json", reflect.TypeOf(ErrorResponse{}))
+	builder.Response(401, "Unauthorized", []string{"application/json"}, reflect.TypeOf(ErrorResponse{})).
+		Response(500, "Internal server error", []string{"application/json"}, reflect.TypeOf(ErrorResponse{}))
 
 	return builder
 }
@@ -183,8 +183,8 @@ func HealthCheckEndpoint(generator *Generator) error {
 		Summary("Health check").
 		Description("Returns the health status of the API").
 		Tags("health").
-		Response(200, "API is healthy", "application/json", reflect.TypeOf(HealthResponse{})).
-		Response(503, "API is unhealthy", "application/json", reflect.TypeOf(ErrorResponse{}))
+		Response(200, "API is healthy", []string{"application/json"}, reflect.TypeOf(HealthResponse{})).
+		Response(503, "API is unhealthy", []string{"application/json"}, reflect.TypeOf(ErrorResponse{}))
 
 	return generator.AddEndpointWithBuilder("GET", "/health", builder)
 }
@@ -214,9 +214,9 @@ func AuthEndpoints(generator *Generator) error {
 		Description("Authenticate user and return access token").
 		Tags("auth").
 		RequestType(reflect.TypeOf(LoginRequest{})).
-		Response(200, "Login successful", "application/json", reflect.TypeOf(LoginResponse{})).
-		Response(401, "Invalid credentials", "application/json", reflect.TypeOf(ErrorResponse{})).
-		Response(400, "Invalid request", "application/json", reflect.TypeOf(ErrorResponse{}))
+		Response(200, "Login successful", []string{"application/json"}, reflect.TypeOf(LoginResponse{})).
+		Response(401, "Invalid credentials", []string{"application/json"}, reflect.TypeOf(ErrorResponse{})).
+		Response(400, "Invalid request", []string{"application/json"}, reflect.TypeOf(ErrorResponse{}))
 
 	if err := generator.AddEndpointWithBuilder("POST", "/auth/login", loginBuilder); err != nil {
 		return err
@@ -228,8 +228,8 @@ func AuthEndpoints(generator *Generator) error {
 		Description("Invalidate the current access token").
 		Tags("auth").
 		Security(SecurityRequirement{"BearerAuth": []string{}}).
-		Response(200, "Logout successful", "application/json", nil).
-		Response(401, "Unauthorized", "application/json", reflect.TypeOf(ErrorResponse{}))
+		Response(200, "Logout successful", []string{"application/json"}, nil).
+		Response(401, "Unauthorized", []string{"application/json"}, reflect.TypeOf(ErrorResponse{}))
 
 	if err := generator.AddEndpointWithBuilder("POST", "/auth/logout", logoutBuilder); err != nil {
 		return err
@@ -241,8 +241,8 @@ func AuthEndpoints(generator *Generator) error {
 		Description("Get information about the currently authenticated user").
 		Tags("auth", "users").
 		Security(SecurityRequirement{"BearerAuth": []string{}}).
-		Response(200, "User information", "application/json", reflect.TypeOf(UserInfo{})).
-		Response(401, "Unauthorized", "application/json", reflect.TypeOf(ErrorResponse{}))
+		Response(200, "User information", []string{"application/json"}, reflect.TypeOf(UserInfo{})).
+		Response(401, "Unauthorized", []string{"application/json"}, reflect.TypeOf(ErrorResponse{}))
 
 	if err := generator.AddEndpointWithBuilder("GET", "/auth/me", meBuilder); err != nil {
 		return err
@@ -442,7 +442,7 @@ func ExampleUsage() {
 		PathParam("id", "User ID", reflect.TypeOf("")).
 		QueryParam("period", "Time period for statistics", false, reflect.TypeOf("")).
 		Security(SecurityRequirement{"BearerAuth": []string{}}).
-		Response(200, "User statistics", "application/json", nil)
+		Response(200, "User statistics", []string{"application/json"}, nil)
 
 	err = generator.AddEndpointWithBuilder("GET", "/users/{id}/stats", customBuilder)
 	if err != nil {

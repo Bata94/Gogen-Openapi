@@ -122,11 +122,11 @@ func main() {
 		QueryParam("created_before", "Filter users created before this date (ISO 8601)", false, reflect.TypeOf("")).
 		HeaderParam("X-Request-ID", "Unique request identifier for tracking", false, reflect.TypeOf("")).
 		Security(openapi.SecurityRequirement{"BearerAuth": []string{}}).
-		Response(200, "Search results with pagination", "application/json", reflect.TypeOf(UserListResponse{})).
-		Response(400, "Invalid query parameters", "application/json", reflect.TypeOf(openapi.ErrorResponse{})).
-		Response(401, "Unauthorized - invalid or missing token", "application/json", reflect.TypeOf(openapi.ErrorResponse{})).
-		Response(422, "Validation error in query parameters", "application/json", reflect.TypeOf(openapi.ErrorResponse{})).
-		Response(500, "Internal server error", "application/json", reflect.TypeOf(openapi.ErrorResponse{}))
+		Response(200, "Search results with pagination", []string{"application/json"}, reflect.TypeOf(UserListResponse{})).
+		Response(400, "Invalid query parameters", []string{"application/json"}, reflect.TypeOf(openapi.ErrorResponse{})).
+		Response(401, "Unauthorized - invalid or missing token", []string{"application/json"}, reflect.TypeOf(openapi.ErrorResponse{})).
+		Response(422, "Validation error in query parameters", []string{"application/json"}, reflect.TypeOf(openapi.ErrorResponse{})).
+		Response(500, "Internal server error", []string{"application/json"}, reflect.TypeOf(openapi.ErrorResponse{}))
 
 	if err := generator.AddEndpointWithBuilder("GET", "/users/search", advancedSearchBuilder); err != nil {
 		log.Fatal("Failed to add advanced search endpoint:", err)
@@ -142,9 +142,9 @@ func main() {
 		QueryParam("period", "Time period for statistics (7d, 30d, 90d, 1y, all)", false, reflect.TypeOf("")).
 		QueryParam("include_details", "Include detailed breakdown of statistics", false, reflect.TypeOf(false)).
 		Security(openapi.SecurityRequirement{"BearerAuth": []string{}}).
-		Response(200, "User statistics", "application/json", nil).
-		Response(404, "User not found", "application/json", reflect.TypeOf(openapi.ErrorResponse{})).
-		Response(403, "Forbidden - insufficient permissions", "application/json", reflect.TypeOf(openapi.ErrorResponse{}))
+		Response(200, "User statistics", []string{"application/json"}, nil).
+		Response(404, "User not found", []string{"application/json"}, reflect.TypeOf(openapi.ErrorResponse{})).
+		Response(403, "Forbidden - insufficient permissions", []string{"application/json"}, reflect.TypeOf(openapi.ErrorResponse{}))
 
 	if err := generator.AddEndpointWithBuilder("GET", "/users/{id}/stats", userStatsBuilder); err != nil {
 		log.Fatal("Failed to add user stats endpoint:", err)
@@ -167,9 +167,9 @@ func main() {
 			},
 		}).
 		Security(openapi.SecurityRequirement{"BearerAuth": []string{}}).
-		Response(200, "Users updated successfully", "application/json", reflect.TypeOf([]User{})).
-		Response(400, "Invalid request data", "application/json", reflect.TypeOf(openapi.ErrorResponse{})).
-		Response(422, "Validation errors in request data", "application/json", reflect.TypeOf(openapi.ErrorResponse{}))
+		Response(200, "Users updated successfully", []string{"application/json"}, reflect.TypeOf([]User{})).
+		Response(400, "Invalid request data", []string{"application/json"}, reflect.TypeOf(openapi.ErrorResponse{})).
+		Response(422, "Validation errors in request data", []string{"application/json"}, reflect.TypeOf(openapi.ErrorResponse{}))
 
 	if err := generator.AddEndpointWithBuilder("PATCH", "/users/bulk", bulkUpdateBuilder); err != nil {
 		log.Fatal("Failed to add bulk update endpoint:", err)
